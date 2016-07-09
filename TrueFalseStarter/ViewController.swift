@@ -19,17 +19,22 @@ class ViewController: UIViewController {
     
     var gameSound: SystemSoundID = 0
     
-    let trivia = Questions().trivia
+    let questions = Questions().questions
     
     @IBOutlet weak var questionField: UILabel!
-    @IBOutlet weak var trueButton: UIButton!
-    @IBOutlet weak var falseButton: UIButton!
-    @IBOutlet weak var playAgainButton: UIButton!
+    @IBOutlet weak var response1: UIButton!
+    @IBOutlet weak var response2: UIButton!
+    @IBOutlet weak var response3: UIButton!
+    @IBOutlet weak var response4: UIButton!
+    @IBOutlet weak var nextButton: UIButton!
+    
+    @IBOutlet weak var resultLabel: UILabel!
     
 
     override func viewDidLoad() {
         super.viewDidLoad()
         loadGameStartSound()
+        makeTheResponseBtnRound(10)
         // Start game
         playGameStartSound()
         displayQuestion()
@@ -41,19 +46,31 @@ class ViewController: UIViewController {
     }
     
     func displayQuestion() {
-        indexOfSelectedQuestion = GKRandomSource.sharedRandom().nextIntWithUpperBound(trivia.count)
-        let questionDictionary = trivia[indexOfSelectedQuestion]
+        highlightButtons(false)
+        hideResponses(false)
+        resultLabel.hidden = true
+        nextButton.hidden = true
+        
+        //Get a random index
+        indexOfSelectedQuestion = GKRandomSource.sharedRandom().nextIntWithUpperBound(questions.count)
+        let questionDictionary = questions[indexOfSelectedQuestion]
+        
+        // affect the label and the button with the question and responses
         questionField.text = questionDictionary.text
-        playAgainButton.hidden = true
+        response1.setTitle(questionDictionary.answer1, forState: .Normal)
+        response2.setTitle(questionDictionary.answer2, forState: .Normal)
+        response3.setTitle(questionDictionary.answer3, forState: .Normal)
+        response4.setTitle(questionDictionary.answer4, forState: .Normal)
     }
     
     func displayScore() {
-        // Hide the answer buttons
-        trueButton.hidden = true
-        falseButton.hidden = true
+        // Hide the answer buttons and the result label
+        hideResponses(true)
+        resultLabel.hidden = true
         
         // Display play again button
-        playAgainButton.hidden = false
+        nextButton.setTitle("Play Again?", forState: .Normal)
+        nextButton.hidden = false
         
         questionField.text = "Way to go!\nYou got \(correctQuestions) out of \(questionsPerRound) correct!"
         
@@ -63,37 +80,41 @@ class ViewController: UIViewController {
         // Increment the questions asked counter
         questionsAsked += 1
         
-        let selectedQuestionDict = trivia[indexOfSelectedQuestion]
-        let correctAnswer = selectedQuestionDict.answer
+        //extrat the correct answer
+        let selectedQuestionDict = questions[indexOfSelectedQuestion]
+        let correctAnswer = selectedQuestionDict.correctAswr
         
-        if (sender === trueButton &&  correctAnswer) || (sender === falseButton && correctAnswer) {
+        highlightButtons(true)
+        sender.highlighted = false
+        resultLabel.hidden = false
+        
+        //Check if the response is correct
+        if (sender.tag == correctAnswer) {
             correctQuestions += 1
-            questionField.text = "Correct!"
+            resultLabel.textColor = UIColor.greenColor()
+            resultLabel.text = "Correct!"
         } else {
-            questionField.text = "Sorry, wrong answer!"
+            resultLabel.textColor = UIColor.orangeColor()
+            resultLabel.text = "Sorry, wrong answer!"
         }
         
-        loadNextRoundWithDelay(seconds: 2)
+        //use the playAgainButton for going to the next question
+        nextButton.setTitle("Next Question", forState: .Normal)
+        nextButton.hidden = false
+        
+        //loadNextRoundWithDelay(seconds: 2)
     }
     
-    func nextRound() {
+    @IBAction func playAgain() {
         if questionsAsked == questionsPerRound {
             // Game is over
             displayScore()
+            questionsAsked = 0
+            correctQuestions = 0
         } else {
             // Continue game
             displayQuestion()
         }
-    }
-    
-    @IBAction func playAgain() {
-        // Show the answer buttons
-        trueButton.hidden = false
-        falseButton.hidden = false
-        
-        questionsAsked = 0
-        correctQuestions = 0
-        nextRound()
     }
     
 
@@ -108,7 +129,7 @@ class ViewController: UIViewController {
         
         // Executes the nextRound method at the dispatch time on the main queue
         dispatch_after(dispatchTime, dispatch_get_main_queue()) {
-            self.nextRound()
+            //self.nextRound()
         }
     }
     
@@ -120,6 +141,28 @@ class ViewController: UIViewController {
     
     func playGameStartSound() {
         AudioServicesPlaySystemSound(gameSound)
+    }
+    
+    func hideResponses(hide:Bool){
+        response1.hidden = hide
+        response2.hidden = hide
+        response3.hidden = hide
+        response4.hidden = hide
+    }
+    
+    func makeTheResponseBtnRound(radius:CGFloat){
+        response1.layer.cornerRadius = radius
+        response2.layer.cornerRadius = radius
+        response3.layer.cornerRadius = radius
+        response4.layer.cornerRadius = radius
+        nextButton.layer.cornerRadius = radius
+    }
+    
+    func highlightButtons(highlight:Bool){
+        response1.highlighted = highlight
+        response2.highlighted = highlight
+        response3.highlighted = highlight
+        response4.highlighted = highlight
     }
 }
 

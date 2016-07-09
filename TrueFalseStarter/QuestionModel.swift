@@ -8,18 +8,16 @@
 
 import Foundation
 
-enum trueFalse:String {
-    case True
-    case False
-}
-
-class Question {
+struct Question {
     let text: String
-    let answer: Bool
-    init(text:String, answer:Bool){
-        self.text = text
-        self.answer = answer
-    }
+    let answer1: String
+    let answer2: String
+    let answer3: String
+    let answer4: String
+    let correctAswr: Int
+//    var answers: [String] {
+//        return [answer1,answer2,answer3,answer4]
+//    }
 }
 
 
