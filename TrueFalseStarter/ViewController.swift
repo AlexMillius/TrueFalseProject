@@ -15,7 +15,7 @@ class ViewController: UIViewController {
     var questionsAsked = 0
     var correctQuestions = 0
     var indexOfSelectedQuestion: Int = 0
-    var randomIndex = 0
+    var randomIndexUsed = [Int]()
     
     var gameSound: SystemSoundID = 0
     var nextSound: SystemSoundID = 0
@@ -58,8 +58,8 @@ class ViewController: UIViewController {
         nextButton.hidden = true
         
         //Get a random question
-        let questionWithInfo = getRandomQuestion(randomIndex, questions: questions)
-        randomIndex = questionWithInfo.randomIndex
+        let questionWithInfo = getRandomQuestion(randomIndexUsed, questions: questions)
+        randomIndexUsed.append(questionWithInfo.randomIndex)
         currentQuestion = questionWithInfo.question
         
         // affect the label and the button with the question and responses
@@ -121,6 +121,7 @@ class ViewController: UIViewController {
             displayScore()
             questionsAsked = 0
             correctQuestions = 0
+            randomIndexUsed = []
         } else {
             // Continue game
             playSound(nextSound)

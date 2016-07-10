@@ -29,14 +29,14 @@ struct Question {
     }
 }
 
-func getRandomQuestion(lastIndex:Int, questions:[Question]) -> (question:Question,randomIndex:Int){
+func getRandomQuestion(lastIndexes:[Int], questions:[Question]) -> (question:Question,randomIndex:Int){
     
     var currentIndex = Int()
     
-    //create a random index while it's the same as the last random index
+    //While the currentIndex as already been used, generate a new random index
     repeat {
         currentIndex = GKRandomSource.sharedRandom().nextIntWithUpperBound(questions.count)
-    } while currentIndex == lastIndex
+    }while lastIndexes.contains(currentIndex)
     
     return (questions[currentIndex],currentIndex)
 }
