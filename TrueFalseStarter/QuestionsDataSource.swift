@@ -26,7 +26,7 @@ struct Questions{
 }
 
 enum Sounds:String{
-    case gameSound
+    case goSound
     case nextSound
     case rightSound
     case wrongSound

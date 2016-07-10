@@ -17,7 +17,7 @@ class ViewController: UIViewController {
     var indexOfSelectedQuestion: Int = 0
     var randomIndexUsed = [Int]()
     
-    var gameSound: SystemSoundID = 0
+    var goSound: SystemSoundID = 0
     var nextSound: SystemSoundID = 0
     var rightSound: SystemSoundID = 0
     var wrongSound: SystemSoundID = 0
@@ -41,7 +41,7 @@ class ViewController: UIViewController {
         loadSounds()
         makeTheResponseBtnRound(10)
         // Start game
-        playSound(gameSound)
+        playSound(goSound)
         displayQuestion()
     }
 
@@ -148,20 +148,20 @@ class ViewController: UIViewController {
     func loadSounds() {
         let wav = "wav"
         
-        let pathToGameSoundFile = NSBundle.mainBundle().pathForResource(Sounds.gameSound.rawValue, ofType: wav)
+        let pathToGoSoundFile = NSBundle.mainBundle().pathForResource(Sounds.goSound.rawValue, ofType: wav)
         let pathToNextSoundFile = NSBundle.mainBundle().pathForResource(Sounds.nextSound.rawValue, ofType: wav)
         let pathToRightSoundFile = NSBundle.mainBundle().pathForResource(Sounds.rightSound.rawValue, ofType: wav)
         let pathToWrongSoundFile = NSBundle.mainBundle().pathForResource(Sounds.wrongSound.rawValue, ofType: wav)
         let pathToEndSoundFile = NSBundle.mainBundle().pathForResource(Sounds.endSound.rawValue, ofType: wav)
         
         
-        let gameSoundURL = NSURL(fileURLWithPath: pathToGameSoundFile!)
+        let gameSoundURL = NSURL(fileURLWithPath: pathToGoSoundFile!)
         let nextSoundURL = NSURL(fileURLWithPath: pathToNextSoundFile!)
         let rightSoundURL = NSURL(fileURLWithPath: pathToRightSoundFile!)
         let wrongSoundURL = NSURL(fileURLWithPath: pathToWrongSoundFile!)
         let endSoundURL = NSURL(fileURLWithPath: pathToEndSoundFile!)
         
-        AudioServicesCreateSystemSoundID(gameSoundURL, &gameSound)
+        AudioServicesCreateSystemSoundID(gameSoundURL, &goSound)
         AudioServicesCreateSystemSoundID(nextSoundURL, &nextSound)
         AudioServicesCreateSystemSoundID(rightSoundURL, &rightSound)
         AudioServicesCreateSystemSoundID(wrongSoundURL, &wrongSound)
