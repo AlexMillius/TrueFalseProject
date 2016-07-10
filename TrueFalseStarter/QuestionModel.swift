@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import GameKit
 
 struct Question {
     let text: String
@@ -18,6 +19,18 @@ struct Question {
 //    var answers: [String] {
 //        return [answer1,answer2,answer3,answer4]
 //    }
+}
+
+func getRandomQuestion(lastIndex:Int, questions:[Question]) -> (question:Question,randomIndex:Int){
+    
+    var currentIndex = Int()
+    
+    //create a random index while it's the same as the last random index
+    repeat {
+        currentIndex = GKRandomSource.sharedRandom().nextIntWithUpperBound(questions.count)
+    } while currentIndex == lastIndex
+    
+    return (questions[currentIndex],currentIndex)
 }
 
 

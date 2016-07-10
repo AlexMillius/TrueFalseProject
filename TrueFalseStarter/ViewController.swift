@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import GameKit
 import AudioToolbox
 
 class ViewController: UIViewController {
@@ -16,6 +15,7 @@ class ViewController: UIViewController {
     var questionsAsked = 0
     var correctQuestions = 0
     var indexOfSelectedQuestion: Int = 0
+    var randomIndex = 0
     
     var gameSound: SystemSoundID = 0
     
@@ -52,16 +52,17 @@ class ViewController: UIViewController {
         resultLabel.hidden = true
         nextButton.hidden = true
         
-        //Get a random index
-        indexOfSelectedQuestion = GKRandomSource.sharedRandom().nextIntWithUpperBound(questions.count)
-        let questionDictionary = questions[indexOfSelectedQuestion]
+        //Get a random question
+        let questionWithInfo = getRandomQuestion(randomIndex, questions: questions)
+        randomIndex = questionWithInfo.randomIndex
+        let currentQuestion = questionWithInfo.question
         
         // affect the label and the button with the question and responses
-        questionField.text = questionDictionary.text
-        response1.setTitle(questionDictionary.answer1, forState: .Normal)
-        response2.setTitle(questionDictionary.answer2, forState: .Normal)
-        response3.setTitle(questionDictionary.answer3, forState: .Normal)
-        response4.setTitle(questionDictionary.answer4, forState: .Normal)
+        questionField.text = currentQuestion.text
+        response1.setTitle(currentQuestion.answer1, forState: .Normal)
+        response2.setTitle(currentQuestion.answer2, forState: .Normal)
+        response3.setTitle(currentQuestion.answer3, forState: .Normal)
+        response4.setTitle(currentQuestion.answer4, forState: .Normal)
     }
     
     @IBAction func checkAnswer(sender: UIButton) {
