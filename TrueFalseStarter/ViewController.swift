@@ -46,6 +46,7 @@ class ViewController: UIViewController {
     }
     
     func displayQuestion() {
+        //Show and Hide the required elements
         highlightButtons(false)
         hideResponses(false)
         resultLabel.hidden = true
@@ -61,19 +62,6 @@ class ViewController: UIViewController {
         response2.setTitle(questionDictionary.answer2, forState: .Normal)
         response3.setTitle(questionDictionary.answer3, forState: .Normal)
         response4.setTitle(questionDictionary.answer4, forState: .Normal)
-    }
-    
-    func displayScore() {
-        // Hide the answer buttons and the result label
-        hideResponses(true)
-        resultLabel.hidden = true
-        
-        // Display play again button
-        nextButton.setTitle("Play Again?", forState: .Normal)
-        nextButton.hidden = false
-        
-        questionField.text = "Way to go!\nYou got \(correctQuestions) out of \(questionsPerRound) correct!"
-        
     }
     
     @IBAction func checkAnswer(sender: UIButton) {
@@ -98,14 +86,28 @@ class ViewController: UIViewController {
             resultLabel.text = "Sorry, wrong answer!"
         }
         
-        //use the playAgainButton for going to the next question
+        //Show the next button
         nextButton.setTitle("Next Question", forState: .Normal)
         nextButton.hidden = false
         
         //loadNextRoundWithDelay(seconds: 2)
     }
     
-    @IBAction func playAgain() {
+    func displayScore() {
+        //Show and Hide the required elements
+        hideResponses(true)
+        resultLabel.hidden = true
+        
+        // Display play again button by reusing the nextButton
+        nextButton.setTitle("Play Again ?", forState: .Normal)
+        nextButton.hidden = false
+        
+        questionField.text = "Way to go!\nYou got \(correctQuestions) out of \(questionsPerRound) correct!"
+        
+    }
+    
+    // The next button is use for the next question AND for playing again
+    @IBAction func next() {
         if questionsAsked == questionsPerRound {
             // Game is over
             displayScore()
