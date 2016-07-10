@@ -19,6 +19,14 @@ struct Question {
 //    var answers: [String] {
 //        return [answer1,answer2,answer3,answer4]
 //    }
+    init (text:String = "", answer1:String = "", answer2:String = "", answer3:String = "", answer4:String = "", correctAswr:Int = 0){
+        self.text = text
+        self.answer1 = answer1
+        self.answer2 = answer2
+        self.answer3 = answer3
+        self.answer4 = answer4
+        self.correctAswr = correctAswr
+    }
 }
 
 func getRandomQuestion(lastIndex:Int, questions:[Question]) -> (question:Question,randomIndex:Int){

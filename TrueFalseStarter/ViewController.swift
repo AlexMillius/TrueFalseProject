@@ -18,8 +18,13 @@ class ViewController: UIViewController {
     var randomIndex = 0
     
     var gameSound: SystemSoundID = 0
+    var nextSound: SystemSoundID = 0
+    var rightSound: SystemSoundID = 0
+    var wrongSound: SystemSoundID = 0
+    var endSound: SystemSoundID = 0
     
     let questions = Questions().questions
+    var currentQuestion = Question()
     
     @IBOutlet weak var questionField: UILabel!
     @IBOutlet weak var response1: UIButton!
@@ -33,10 +38,10 @@ class ViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        loadGameStartSound()
+        loadSounds()
         makeTheResponseBtnRound(10)
         // Start game
-        playGameStartSound()
+        playSound(gameSound)
         displayQuestion()
     }
 
@@ -55,7 +60,7 @@ class ViewController: UIViewController {
         //Get a random question
         let questionWithInfo = getRandomQuestion(randomIndex, questions: questions)
         randomIndex = questionWithInfo.randomIndex
-        let currentQuestion = questionWithInfo.question
+        currentQuestion = questionWithInfo.question
         
         // affect the label and the button with the question and responses
         questionField.text = currentQuestion.text
@@ -70,8 +75,7 @@ class ViewController: UIViewController {
         questionsAsked += 1
         
         //extrat the correct answer
-        let selectedQuestionDict = questions[indexOfSelectedQuestion]
-        let correctAnswer = selectedQuestionDict.correctAswr
+        let correctAnswer = currentQuestion.correctAswr
         
         highlightButtons(true)
         sender.highlighted = false
@@ -79,10 +83,12 @@ class ViewController: UIViewController {
         
         //Check if the response is correct
         if (sender.tag == correctAnswer) {
+            playSound(rightSound)
             correctQuestions += 1
             resultLabel.textColor = UIColor.greenColor()
             resultLabel.text = "Correct!"
         } else {
+            playSound(wrongSound)
             resultLabel.textColor = UIColor.orangeColor()
             resultLabel.text = "Sorry, wrong answer!"
         }
@@ -111,11 +117,13 @@ class ViewController: UIViewController {
     @IBAction func next() {
         if questionsAsked == questionsPerRound {
             // Game is over
+            playSound(endSound)
             displayScore()
             questionsAsked = 0
             correctQuestions = 0
         } else {
             // Continue game
+            playSound(nextSound)
             displayQuestion()
         }
     }
@@ -136,14 +144,31 @@ class ViewController: UIViewController {
         }
     }
     
-    func loadGameStartSound() {
-        let pathToSoundFile = NSBundle.mainBundle().pathForResource("GameSound", ofType: "wav")
-        let soundURL = NSURL(fileURLWithPath: pathToSoundFile!)
-        AudioServicesCreateSystemSoundID(soundURL, &gameSound)
+    func loadSounds() {
+        let wav = "wav"
+        
+        let pathToGameSoundFile = NSBundle.mainBundle().pathForResource(Sounds.gameSound.rawValue, ofType: wav)
+        let pathToNextSoundFile = NSBundle.mainBundle().pathForResource(Sounds.nextSound.rawValue, ofType: wav)
+        let pathToRightSoundFile = NSBundle.mainBundle().pathForResource(Sounds.rightSound.rawValue, ofType: wav)
+        let pathToWrongSoundFile = NSBundle.mainBundle().pathForResource(Sounds.wrongSound.rawValue, ofType: wav)
+        let pathToEndSoundFile = NSBundle.mainBundle().pathForResource(Sounds.endSound.rawValue, ofType: wav)
+        
+        
+        let gameSoundURL = NSURL(fileURLWithPath: pathToGameSoundFile!)
+        let nextSoundURL = NSURL(fileURLWithPath: pathToNextSoundFile!)
+        let rightSoundURL = NSURL(fileURLWithPath: pathToRightSoundFile!)
+        let wrongSoundURL = NSURL(fileURLWithPath: pathToWrongSoundFile!)
+        let endSoundURL = NSURL(fileURLWithPath: pathToEndSoundFile!)
+        
+        AudioServicesCreateSystemSoundID(gameSoundURL, &gameSound)
+        AudioServicesCreateSystemSoundID(nextSoundURL, &nextSound)
+        AudioServicesCreateSystemSoundID(rightSoundURL, &rightSound)
+        AudioServicesCreateSystemSoundID(wrongSoundURL, &wrongSound)
+        AudioServicesCreateSystemSoundID(endSoundURL, &endSound)
     }
     
-    func playGameStartSound() {
-        AudioServicesPlaySystemSound(gameSound)
+    func playSound(soundId:SystemSoundID) {
+        AudioServicesPlaySystemSound(soundId)
     }
     
     func hideResponses(hide:Bool){
