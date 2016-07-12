@@ -24,11 +24,3 @@ let question10 = Question(text: "Which of these countries won the most medals in
 struct Questions{
     let questions: [Question] = [question1, question2, question3, question4, question5, question6, question7, question8, question9, question10]
 }
-
-enum Sounds:String{
-    case goSound
-    case nextSound
-    case rightSound
-    case wrongSound
-    case endSound
-}

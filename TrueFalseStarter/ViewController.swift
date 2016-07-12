@@ -17,9 +17,12 @@ class ViewController: UIViewController {
     var correctQuestions = 0
     var indexOfSelectedQuestion: Int = 0
     var randomIndexUsed = [Int]()
+    var lightningMode = false
+    var responseInTime = false
     
-    var goSound: SystemSoundID = 0
+    var gameStartSound: SystemSoundID = 0
     var nextSound: SystemSoundID = 0
+    var timesUpSound: SystemSoundID = 0
     var rightSound: SystemSoundID = 0
     var wrongSound: SystemSoundID = 0
     var endSound: SystemSoundID = 0
@@ -29,8 +32,11 @@ class ViewController: UIViewController {
     
     @IBOutlet weak var questionField: UILabel!
     @IBOutlet weak var resultLabel: UILabel!
-    @IBOutlet weak var nextButton: UIButton!
+    @IBOutlet weak var centerInfoLabel: UILabel!
     
+    @IBOutlet weak var lightningSwitch: UISwitch!
+    
+    @IBOutlet weak var nextButton: UIButton!
     @IBOutlet weak var response1: UIButton!
     @IBOutlet weak var response2: UIButton!
     @IBOutlet weak var response3: UIButton!
@@ -40,8 +46,6 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         laodAllSounds()
         makeTheResponseBtnRound(10)
-        // Start game
-        displayQuestion()
     }
 
     override func didReceiveMemoryWarning() {
@@ -49,10 +53,24 @@ class ViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
     
+
+    @IBAction func lightningSwitchToggled(sender: UISwitch) {
+        if sender.on {
+            lightningMode = true
+        }else {
+            lightningMode = false
+        }
+    }
+    
     func displayQuestion() {
+        enableResponse(true)
+        
+        //Initialise the response in time
+        responseInTime = false
+        
         //Play the correspondant sound
         if questionsAsked == 0 {
-            playSound(goSound)
+            playSound(gameStartSound)
         } else {
             playSound(nextSound)
         }
@@ -74,9 +92,9 @@ class ViewController: UIViewController {
         
         //Prepare the nextButton title
         if questionsAsked == questionsPerRound {
-            nextButton.setTitle("Result", forState: .Normal)
+            nextButton.setTitle(NextTitle.result.txt(), forState: .Normal)
         } else {
-            nextButton.setTitle("Next Question", forState: .Normal)
+            nextButton.setTitle(NextTitle.nextQuestion.txt(), forState: .Normal)
         }
         
         //Show and Hide the required elements
@@ -84,16 +102,31 @@ class ViewController: UIViewController {
         hideResponses(false)
         resultLabel.hidden = true
         nextButton.hidden = true
+        
+        if lightningMode {
+            lightningCountdown(seconds: 15)
+        }
     }
     
     @IBAction func checkAnswer(sender: UIButton) {
+        
+        //The player as repsonded in time
+        responseInTime = true
+        
         //extrat the correct answer
         let correctAnswer = currentQuestion.correctAswr
         
         //Highlight the required elements
-        highlightButtons(true)
-        sender.highlighted = false
+//        highlightButtons(true)
+//        sender.highlighted = false
+        
+        //enable the responses
+        enableResponse(false)
+        sender.enabled = true
+        
         resultLabel.hidden = false
+        
+        
         
         //Check if the response is correct
         if (sender.tag == correctAnswer) {
@@ -109,8 +142,6 @@ class ViewController: UIViewController {
         
         //Show the next button
         nextButton.hidden = false
-        
-        //loadNextRoundWithDelay(seconds: 2)
     }
     
     func displayScore() {
@@ -118,9 +149,11 @@ class ViewController: UIViewController {
         hideResponses(true)
         clearResponseTitle()
         resultLabel.hidden = true
+        centerInfoLabel.text = CenterTxt.lightningInfo.txt()
+        hideLightningSelect(false)
         
         // Display play again button by reusing the nextButton
-        nextButton.setTitle("Play Again ?", forState: .Normal)
+        nextButton.setTitle(NextTitle.playAgain.txt(), forState: .Normal)
         nextButton.hidden = false
         
         questionField.text = "Way to go!\nYou got \(correctQuestions) out of \(questionsPerRound) correct!"
@@ -136,16 +169,17 @@ class ViewController: UIViewController {
             correctQuestions = 0
             randomIndexUsed = []
         } else {
-            // Continue game
+            // Start Game or Continue game
             displayQuestion()
+            hideLightningSelect(true)
         }
     }
     
 
     
-    // MARK: Helper Methods
+    // MARK: Time Helper Methods
     
-    func loadNextRoundWithDelay(seconds seconds: Int) {
+    func lightningCountdown(seconds seconds: Int) {
         // Converts a delay in seconds to nanoseconds as signed 64 bit integer
         let delay = Int64(NSEC_PER_SEC * UInt64(seconds))
         // Calculates a time value to execute the method given current time and delay
@@ -153,16 +187,37 @@ class ViewController: UIViewController {
         
         // Executes the nextRound method at the dispatch time on the main queue
         dispatch_after(dispatchTime, dispatch_get_main_queue()) {
-            //self.nextRound()
+            //If the player asn't responded in time, hide the answer and do some effect
+            if !self.responseInTime {
+                self.clearResponseTitle()
+//                self.nextButton.setTitle(NextTitle.nextQuestion.txt(), forState: .Normal)
+                self.nextButton.hidden = false
+                self.hideResponses(true)
+                self.playSound(self.timesUpSound)
+                self.centerInfoLabel.text = CenterTxt.oops.txt()
+                self.centerInfoLabel.hidden = false
+            }
         }
+    }
+    
+    // MARK: Sound Helper Methods
+    
+    enum Sounds:String{
+        case gameStartSound
+        case nextSound
+        case timesUpSound
+        case rightSound
+        case wrongSound
+        case endSound
     }
     
     func laodAllSounds(){
         let wav = "wav"
-        goSound = loadSound(goSound, pathName: Sounds.goSound.rawValue, type: wav)
+        gameStartSound = loadSound(gameStartSound, pathName: Sounds.gameStartSound.rawValue, type: wav)
         rightSound = loadSound(rightSound, pathName: Sounds.rightSound.rawValue, type: wav)
         wrongSound = loadSound(wrongSound, pathName: Sounds.wrongSound.rawValue, type: wav)
         nextSound = loadSound(nextSound, pathName: Sounds.nextSound.rawValue, type: wav)
+        timesUpSound = loadSound(timesUpSound, pathName: Sounds.timesUpSound.rawValue, type: wav)
         endSound = loadSound(endSound, pathName: Sounds.endSound.rawValue, type: wav)
     }
     
@@ -178,11 +233,25 @@ class ViewController: UIViewController {
         AudioServicesPlaySystemSound(soundId)
     }
     
+    // MARK: UI Helper Methods
+    
     func hideResponses(hide:Bool){
         response1.hidden = hide
         response2.hidden = hide
         response3.hidden = hide
         response4.hidden = hide
+    }
+    
+    func enableResponse(enable:Bool){
+        response1.enabled = enable
+        response2.enabled = enable
+        response3.enabled = enable
+        response4.enabled = enable
+    }
+    
+    func hideLightningSelect(hide:Bool){
+        centerInfoLabel.hidden = hide
+        lightningSwitch.hidden = hide
     }
     
     func makeTheResponseBtnRound(radius:CGFloat){
@@ -206,6 +275,34 @@ class ViewController: UIViewController {
         response2.setTitle("", forState: .Normal)
         response3.setTitle("", forState: .Normal)
         response4.setTitle("", forState: .Normal)
+    }
+    
+    enum CenterTxt:String {
+        case oops
+        case lightningInfo
+        
+        func txt()->String{
+            switch self {
+            case oops: return "Oops ! Too late."
+            case .lightningInfo: return "Lightning mode (15sec/question)"
+            }
+        }
+    }
+    
+    enum NextTitle:String {
+        case letsGo
+        case nextQuestion
+        case result
+        case playAgain
+        
+        func txt()->String{
+            switch self {
+            case .letsGo: return "Let's Go !"
+            case .nextQuestion: return "Next Question"
+            case .result: return "Result"
+            case .playAgain: return "Play Again ?"
+            }
+        }
     }
 }
 
