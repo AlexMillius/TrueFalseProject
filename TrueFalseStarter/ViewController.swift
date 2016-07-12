@@ -17,8 +17,9 @@ class ViewController: UIViewController {
     var correctQuestions = 0
     var indexOfSelectedQuestion: Int = 0
     var randomIndexUsed = [Int]()
+    var timer = 0
+    var clock = NSTimer()
     var lightningMode = false
-    var responseInTime = false
     
     var startSound: SystemSoundID = 0
     var nextSound: SystemSoundID = 0
@@ -63,13 +64,11 @@ class ViewController: UIViewController {
         }
     }
     
+    //MARK: display question
     func displayQuestion() {
         playSound(nextSound)
         enableResponse(true)
         initAnswerColor()
-        
-        //Initialise the response in time
-        responseInTime = false
 
         // Increment the questions asked counter
         questionsAsked += 1
@@ -103,9 +102,10 @@ class ViewController: UIViewController {
         }
     }
     
+    //MARK: check answer
     @IBAction func checkAnswer(sender: UIButton) {
         //The player as repsonded in time
-        responseInTime = true
+        clock.invalidate()
         
         //extrat the correct answer
         let correctAnswer = currentQuestion.correctAswr
@@ -171,24 +171,26 @@ class ViewController: UIViewController {
     // MARK: Time Helper Methods
     
     func lightningCountdown(seconds seconds: Int) {
-        // Converts a delay in seconds to nanoseconds as signed 64 bit integer
-        let delay = Int64(NSEC_PER_SEC * UInt64(seconds))
-        // Calculates a time value to execute the method given current time and delay
-        let dispatchTime = dispatch_time(DISPATCH_TIME_NOW, delay)
+        timer = seconds
+        clock = NSTimer.scheduledTimerWithTimeInterval(1.0, target: self, selector: #selector(ViewController.updateTimer), userInfo: nil, repeats: true)
+        print("init timer")
         
-        // Executes the nextRound method at the dispatch time on the main queue
-        dispatch_after(dispatchTime, dispatch_get_main_queue()) {
-            //If the player asn't responded in time, hide the answer and do some effect
-            if !self.responseInTime {
-                self.clearResponseTitle()
-                self.nextButton.hidden = false
-                self.hideResponses(true)
-                self.playSound(self.timesUpSound)
-                self.centerInfoLabel.text = CenterTxt.oops.txt()
-                self.centerInfoLabel.hidden = false
-            }
+    }
+    
+    func updateTimer(){
+        print("timer decrease \(timer)")
+        timer -= 1
+        if timer == 0{
+            clock.invalidate()
+            self.clearResponseTitle()
+            self.nextButton.hidden = false
+            self.hideResponses(true)
+            self.playSound(self.timesUpSound)
+            self.centerInfoLabel.text = CenterTxt.oops.txt()
+            self.centerInfoLabel.hidden = false
         }
     }
+
     
     // MARK: Sound Helper Methods
     
