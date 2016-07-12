@@ -28,21 +28,19 @@ class ViewController: UIViewController {
     var currentQuestion = Question()
     
     @IBOutlet weak var questionField: UILabel!
+    @IBOutlet weak var resultLabel: UILabel!
+    @IBOutlet weak var nextButton: UIButton!
+    
     @IBOutlet weak var response1: UIButton!
     @IBOutlet weak var response2: UIButton!
     @IBOutlet weak var response3: UIButton!
     @IBOutlet weak var response4: UIButton!
-    @IBOutlet weak var nextButton: UIButton!
     
-    @IBOutlet weak var resultLabel: UILabel!
-    
-
     override func viewDidLoad() {
         super.viewDidLoad()
-        loadSounds()
+        laodAllSounds()
         makeTheResponseBtnRound(10)
         // Start game
-        playSound(goSound)
         displayQuestion()
     }
 
@@ -52,11 +50,15 @@ class ViewController: UIViewController {
     }
     
     func displayQuestion() {
-        //Show and Hide the required elements
-        highlightButtons(false)
-        hideResponses(false)
-        resultLabel.hidden = true
-        nextButton.hidden = true
+        //Play the correspondant sound
+        if questionsAsked == 0 {
+            playSound(goSound)
+        } else {
+            playSound(nextSound)
+        }
+        
+        // Increment the questions asked counter
+        questionsAsked += 1
         
         //Get a random question
         let questionWithInfo = getRandomQuestion(randomIndexUsed, questions: questions)
@@ -69,15 +71,26 @@ class ViewController: UIViewController {
         response2.setTitle(currentQuestion.answer2, forState: .Normal)
         response3.setTitle(currentQuestion.answer3, forState: .Normal)
         response4.setTitle(currentQuestion.answer4, forState: .Normal)
+        
+        //Prepare the nextButton title
+        if questionsAsked == questionsPerRound {
+            nextButton.setTitle("Result", forState: .Normal)
+        } else {
+            nextButton.setTitle("Next Question", forState: .Normal)
+        }
+        
+        //Show and Hide the required elements
+        highlightButtons(false)
+        hideResponses(false)
+        resultLabel.hidden = true
+        nextButton.hidden = true
     }
     
     @IBAction func checkAnswer(sender: UIButton) {
-        // Increment the questions asked counter
-        questionsAsked += 1
-        
         //extrat the correct answer
         let correctAnswer = currentQuestion.correctAswr
         
+        //Highlight the required elements
         highlightButtons(true)
         sender.highlighted = false
         resultLabel.hidden = false
@@ -95,7 +108,6 @@ class ViewController: UIViewController {
         }
         
         //Show the next button
-        nextButton.setTitle("Next Question", forState: .Normal)
         nextButton.hidden = false
         
         //loadNextRoundWithDelay(seconds: 2)
@@ -104,6 +116,7 @@ class ViewController: UIViewController {
     func displayScore() {
         //Show and Hide the required elements
         hideResponses(true)
+        clearResponseTitle()
         resultLabel.hidden = true
         
         // Display play again button by reusing the nextButton
@@ -111,7 +124,6 @@ class ViewController: UIViewController {
         nextButton.hidden = false
         
         questionField.text = "Way to go!\nYou got \(correctQuestions) out of \(questionsPerRound) correct!"
-        
     }
     
     // The next button is use for the next question AND for playing again
@@ -125,7 +137,6 @@ class ViewController: UIViewController {
             randomIndexUsed = []
         } else {
             // Continue game
-            playSound(nextSound)
             displayQuestion()
         }
     }
@@ -146,27 +157,21 @@ class ViewController: UIViewController {
         }
     }
     
-    func loadSounds() {
+    func laodAllSounds(){
         let wav = "wav"
-        
-        let pathToGoSoundFile = NSBundle.mainBundle().pathForResource(Sounds.goSound.rawValue, ofType: wav)
-        let pathToNextSoundFile = NSBundle.mainBundle().pathForResource(Sounds.nextSound.rawValue, ofType: wav)
-        let pathToRightSoundFile = NSBundle.mainBundle().pathForResource(Sounds.rightSound.rawValue, ofType: wav)
-        let pathToWrongSoundFile = NSBundle.mainBundle().pathForResource(Sounds.wrongSound.rawValue, ofType: wav)
-        let pathToEndSoundFile = NSBundle.mainBundle().pathForResource(Sounds.endSound.rawValue, ofType: wav)
-        
-        
-        let gameSoundURL = NSURL(fileURLWithPath: pathToGoSoundFile!)
-        let nextSoundURL = NSURL(fileURLWithPath: pathToNextSoundFile!)
-        let rightSoundURL = NSURL(fileURLWithPath: pathToRightSoundFile!)
-        let wrongSoundURL = NSURL(fileURLWithPath: pathToWrongSoundFile!)
-        let endSoundURL = NSURL(fileURLWithPath: pathToEndSoundFile!)
-        
-        AudioServicesCreateSystemSoundID(gameSoundURL, &goSound)
-        AudioServicesCreateSystemSoundID(nextSoundURL, &nextSound)
-        AudioServicesCreateSystemSoundID(rightSoundURL, &rightSound)
-        AudioServicesCreateSystemSoundID(wrongSoundURL, &wrongSound)
-        AudioServicesCreateSystemSoundID(endSoundURL, &endSound)
+        goSound = loadSound(goSound, pathName: Sounds.goSound.rawValue, type: wav)
+        rightSound = loadSound(rightSound, pathName: Sounds.rightSound.rawValue, type: wav)
+        wrongSound = loadSound(wrongSound, pathName: Sounds.wrongSound.rawValue, type: wav)
+        nextSound = loadSound(nextSound, pathName: Sounds.nextSound.rawValue, type: wav)
+        endSound = loadSound(endSound, pathName: Sounds.endSound.rawValue, type: wav)
+    }
+    
+    func loadSound(systSoundId:SystemSoundID, pathName:String, type:String) -> SystemSoundID{
+        var sound = SystemSoundID()
+        let pathToSoundFile = NSBundle.mainBundle().pathForResource(pathName, ofType: type)
+        let soundURL = NSURL(fileURLWithPath: pathToSoundFile!)
+        AudioServicesCreateSystemSoundID(soundURL, &sound)
+        return sound
     }
     
     func playSound(soundId:SystemSoundID) {
@@ -193,6 +198,14 @@ class ViewController: UIViewController {
         response2.highlighted = highlight
         response3.highlighted = highlight
         response4.highlighted = highlight
+    }
+    
+    //Prevent the last reponse to appear when the player play again
+    func clearResponseTitle(){
+        response1.setTitle("", forState: .Normal)
+        response2.setTitle("", forState: .Normal)
+        response3.setTitle("", forState: .Normal)
+        response4.setTitle("", forState: .Normal)
     }
 }
 

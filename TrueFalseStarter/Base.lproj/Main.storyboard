@@ -74,7 +74,7 @@
                                 </constraints>
                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="16"/>
                                 <color key="tintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                <state key="normal" title="Play Again"/>
+                                <state key="normal" title="Next Question"/>
                                 <connections>
                                     <action selector="next" destination="BYZ-38-t0r" eventType="touchUpInside" id="FOK-QR-VNh"/>
                                 </connections>
