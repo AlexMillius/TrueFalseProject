@@ -20,7 +20,7 @@ class ViewController: UIViewController {
     var lightningMode = false
     var responseInTime = false
     
-    var gameStartSound: SystemSoundID = 0
+    var startSound: SystemSoundID = 0
     var nextSound: SystemSoundID = 0
     var timesUpSound: SystemSoundID = 0
     var rightSound: SystemSoundID = 0
@@ -45,6 +45,7 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         laodAllSounds()
+        playSound(startSound)
         makeTheResponseBtnRound(10)
     }
 
@@ -63,18 +64,13 @@ class ViewController: UIViewController {
     }
     
     func displayQuestion() {
+        playSound(nextSound)
         enableResponse(true)
+        initAnswerColor()
         
         //Initialise the response in time
         responseInTime = false
-        
-        //Play the correspondant sound
-        if questionsAsked == 0 {
-            playSound(gameStartSound)
-        } else {
-            playSound(nextSound)
-        }
-        
+
         // Increment the questions asked counter
         questionsAsked += 1
         
@@ -98,7 +94,6 @@ class ViewController: UIViewController {
         }
         
         //Show and Hide the required elements
-        highlightButtons(false)
         hideResponses(false)
         resultLabel.hidden = true
         nextButton.hidden = true
@@ -109,24 +104,17 @@ class ViewController: UIViewController {
     }
     
     @IBAction func checkAnswer(sender: UIButton) {
-        
         //The player as repsonded in time
         responseInTime = true
         
         //extrat the correct answer
         let correctAnswer = currentQuestion.correctAswr
         
-        //Highlight the required elements
-//        highlightButtons(true)
-//        sender.highlighted = false
-        
         //enable the responses
         enableResponse(false)
         sender.enabled = true
         
         resultLabel.hidden = false
-        
-        
         
         //Check if the response is correct
         if (sender.tag == correctAnswer) {
@@ -138,6 +126,9 @@ class ViewController: UIViewController {
             playSound(wrongSound)
             resultLabel.textColor = UIColor.orangeColor()
             resultLabel.text = "Sorry, wrong answer!"
+            //change the color of the text in green for the right answer and red for the selected answer
+            colorAnswerButton(correctAnswer, color: UIColor.greenColor())
+            colorAnswerButton(sender.tag, color: UIColor.redColor())
         }
         
         //Show the next button
@@ -190,7 +181,6 @@ class ViewController: UIViewController {
             //If the player asn't responded in time, hide the answer and do some effect
             if !self.responseInTime {
                 self.clearResponseTitle()
-//                self.nextButton.setTitle(NextTitle.nextQuestion.txt(), forState: .Normal)
                 self.nextButton.hidden = false
                 self.hideResponses(true)
                 self.playSound(self.timesUpSound)
@@ -203,7 +193,7 @@ class ViewController: UIViewController {
     // MARK: Sound Helper Methods
     
     enum Sounds:String{
-        case gameStartSound
+        case startSound
         case nextSound
         case timesUpSound
         case rightSound
@@ -213,7 +203,7 @@ class ViewController: UIViewController {
     
     func laodAllSounds(){
         let wav = "wav"
-        gameStartSound = loadSound(gameStartSound, pathName: Sounds.gameStartSound.rawValue, type: wav)
+        startSound = loadSound(startSound, pathName: Sounds.startSound.rawValue, type: wav)
         rightSound = loadSound(rightSound, pathName: Sounds.rightSound.rawValue, type: wav)
         wrongSound = loadSound(wrongSound, pathName: Sounds.wrongSound.rawValue, type: wav)
         nextSound = loadSound(nextSound, pathName: Sounds.nextSound.rawValue, type: wav)
@@ -262,19 +252,29 @@ class ViewController: UIViewController {
         nextButton.layer.cornerRadius = radius
     }
     
-    func highlightButtons(highlight:Bool){
-        response1.highlighted = highlight
-        response2.highlighted = highlight
-        response3.highlighted = highlight
-        response4.highlighted = highlight
-    }
-    
     //Prevent the last reponse to appear when the player play again
     func clearResponseTitle(){
         response1.setTitle("", forState: .Normal)
         response2.setTitle("", forState: .Normal)
         response3.setTitle("", forState: .Normal)
         response4.setTitle("", forState: .Normal)
+    }
+    
+    func colorAnswerButton(tag:Int, color: UIColor){
+        switch tag {
+        case 1: response1.setTitleColor(color, forState: .Normal)
+        case 2: response2.setTitleColor(color, forState: .Normal)
+        case 3: response3.setTitleColor(color, forState: .Normal)
+        case 4: response4.setTitleColor(color, forState: .Normal)
+        default: break
+        }
+    }
+    
+    func initAnswerColor(){
+        response1.setTitleColor(.None, forState: .Normal)
+        response2.setTitleColor(.None, forState: .Normal)
+        response3.setTitleColor(.None, forState: .Normal)
+        response4.setTitleColor(.None, forState: .Normal)
     }
     
     enum CenterTxt:String {
