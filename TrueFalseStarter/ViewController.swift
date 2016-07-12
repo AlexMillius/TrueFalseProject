@@ -5,7 +5,7 @@
 //  Created by Pasan Premaratne on 3/9/16.
 //  Copyright © 2016 Treehouse. All rights reserved.
 //
-//  Edited by Alex Millius
+//  Edited by Alex Millius 12 june 2016
 
 import UIKit
 import AudioToolbox
@@ -97,6 +97,7 @@ class ViewController: UIViewController {
         resultLabel.hidden = true
         nextButton.hidden = true
         
+        //If the lightning mode is activate, run the countdown
         if lightningMode {
             lightningCountdown(seconds: 15)
         }
@@ -114,6 +115,7 @@ class ViewController: UIViewController {
         enableResponse(false)
         sender.enabled = true
         
+        //Show the result label
         resultLabel.hidden = false
         
         //Check if the response is correct
@@ -143,7 +145,7 @@ class ViewController: UIViewController {
         centerInfoLabel.text = CenterTxt.lightningInfo.txt()
         hideLightningSelect(false)
         
-        // Display play again button by reusing the nextButton
+        //Display "play again" button by reusing the nextButton
         nextButton.setTitle(NextTitle.playAgain.txt(), forState: .Normal)
         nextButton.hidden = false
         
@@ -167,19 +169,17 @@ class ViewController: UIViewController {
     }
     
 
-    
     // MARK: Time Helper Methods
-    
     func lightningCountdown(seconds seconds: Int) {
         timer = seconds
         clock = NSTimer.scheduledTimerWithTimeInterval(1.0, target: self, selector: #selector(ViewController.updateTimer), userInfo: nil, repeats: true)
-        print("init timer")
-        
     }
     
     func updateTimer(){
-        print("timer decrease \(timer)")
+        //Decrease the timer
         timer -= 1
+        
+        //If the timer reach zéro, display the correct ui and invalidate the timer.
         if timer == 0{
             clock.invalidate()
             self.clearResponseTitle()
@@ -193,7 +193,6 @@ class ViewController: UIViewController {
 
     
     // MARK: Sound Helper Methods
-    
     enum Sounds:String{
         case startSound
         case nextSound
@@ -226,7 +225,6 @@ class ViewController: UIViewController {
     }
     
     // MARK: UI Helper Methods
-    
     func hideResponses(hide:Bool){
         response1.hidden = hide
         response2.hidden = hide
@@ -279,6 +277,7 @@ class ViewController: UIViewController {
         response4.setTitleColor(.None, forState: .Normal)
     }
     
+    //MARK: String helper Enum
     enum CenterTxt:String {
         case oops
         case lightningInfo

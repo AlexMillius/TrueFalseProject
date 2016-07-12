@@ -16,9 +16,7 @@ struct Question {
     let answer3: String
     let answer4: String
     let correctAswr: Int
-//    var answers: [String] {
-//        return [answer1,answer2,answer3,answer4]
-//    }
+
     init (text:String = "", answer1:String = "", answer2:String = "", answer3:String = "", answer4:String = "", correctAswr:Int = 0){
         self.text = text
         self.answer1 = answer1
